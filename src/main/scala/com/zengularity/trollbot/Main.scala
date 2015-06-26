@@ -1,13 +1,16 @@
 package com.zengularity.trollbot
 
 import akka.stream._
+import akka.stream.io._
 import akka.stream.scaladsl._
 import akka.actor._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl._
+import akka.util.ByteString
 
 import scala.concurrent.duration._
 import scala.concurrent._
+
 
 object Main {
   def main(args: Array[String]) {
@@ -39,5 +42,7 @@ object Main {
   // def signedRequest(req: HttpRequest): HttpRequest = {
   //
   // }
+
+  val fileSink: Sink[ByteString, Future[Long]] = SynchronousFileSink(new java.io.File("tweets.csv"), append = true)
 
 }
