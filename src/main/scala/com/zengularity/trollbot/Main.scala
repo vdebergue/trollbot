@@ -18,23 +18,21 @@ object Main {
 
     // val tweets: Source[Tweet, Unit] = ???
 
-    val connectionFlow = Http().outgoingConnectionTls("stream.twitter.com")
-    val baseRequest = HttpRequest(method= HttpMethods.POST, uri = "/1.1/statuses/filter.json")
-    val signedRequest = sign(baseRequest)
-    val response = Source.single(HttpRequest(method= HttpMethods.POST, uri = "/1.1/statuses/filter.json"))
-      .via(connectionFlow)
-      .runWith(Sink.head)
-
-    val res = Await.result(response, 1 second)
-    println(res)
-
-    system.shutdown()
+    // val connectionFlow = Http().outgoingConnectionTls("stream.twitter.com")
+    // val baseRequest = HttpRequest(method= HttpMethods.POST, uri = "/1.1/statuses/filter.json")
+    // val signedRequest = signedRequest(baseRequest)
+    // val response = Source.single(HttpRequest(method= HttpMethods.POST, uri = "/1.1/statuses/filter.json"))
+    //   .via(connectionFlow)
+    //   .runWith(Sink.head)
+    //
+    // val res = Await.result(response, 1 second)
+    // println(res)
+    //
+    // system.shutdown()
   }
 
-  def signedRequest(req: HttpRequest): HttpRequest = {
-
-  }
+  // def signedRequest(req: HttpRequest): HttpRequest = {
+  //
+  // }
 
 }
-
-case class Tweet(content: String)
