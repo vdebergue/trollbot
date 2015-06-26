@@ -42,8 +42,12 @@ object TwitterApp {
     .setOAuthAccessTokenSecret(ACCESS_TOKEN_SECRET)
     .build
 
-  def statusListener = new StatusListener() {
-    def onStatus(status: Status) { println(status.getText) }
+  def statusListener(queue: collection.mutable.Queue[Tweet]) = new StatusListener() {
+    def onStatus(status: Status) {
+     println(status.getText)
+     val t = Tweet(status.getUser().getName(), status.getText, None)
+     queue.enqueue(t)
+    }
     def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {}
     def onTrackLimitationNotice(numberOfLimitedStatuses: Int) {}
     def onException(ex: Exception) { ex.printStackTrace }
@@ -51,12 +55,15 @@ object TwitterApp {
     def onStallWarning(warning: StallWarning) {}
   }
 
-  def getStream(terms: Array[String] = Array[String]()): Unit = {
-    val twitterStream = new TwitterStreamFactory(streamConfig).getInstance
-    twitterStream.addListener(statusListener)
-    twitterStream.filter(new FilterQuery().track(terms))
-    Thread.sleep(2000)
-    twitterStream.cleanUp
-    twitterStream.shutdown
+  def getStream(terms: Array[String] = Array[String]()): Iterator[Tweet] = {
+    new Iterator[Tweet] {
+      val queue = collection.mutable.Queue.empty[Tweet]
+      val twitterStream = new TwitterStreamFactory(streamConfig).getInstance
+      twitterStream.addListener(statusListener(queue))
+      twitterStream.filter(new FilterQuery().track(terms))
+      def hasNext: Boolean = !queue.isEmpty
+      def next(): Tweet = queue.dequeue()
+    }
+
   }
 }
