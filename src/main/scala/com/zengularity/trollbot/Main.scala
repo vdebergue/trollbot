@@ -43,6 +43,29 @@ object Main {
   //
   // }
 
+  def twitterActorSource(terms: Array[String])(implicit mat: Materializer): Source[Tweet, Unit] = {
+    val (actorRef, publisher) = Source.actorRef[Tweet](1000, OverflowStrategy.dropHead).toMat(Sink.publisher)(Keep.both).run()
+
+    val twitterListener = new twitter4j.StatusListener() {
+      def onStatus(status: twitter4j.Status) {
+       val t = Tweet(status.getUser().getName(), status.getText, Option(status.getInReplyToStatusId()))
+       actorRef ! t
+      }
+      def onDeletionNotice(statusDeletionNotice: twitter4j.StatusDeletionNotice) {}
+      def onTrackLimitationNotice(numberOfLimitedStatuses: Int) {}
+      def onException(ex: Exception) { ex.printStackTrace }
+      def onScrubGeo(arg0: Long, arg1: Long) {}
+      def onStallWarning(warning: twitter4j.StallWarning) {}
+    }
+
+    TwitterApp.setupStream(twitterListener, terms)
+    Source(publisher)
+  }
+
+  def twitterQueueSource(terms: Array[String]): Source[Tweet, Unit] = {
+    Source(() => TwitterApp.getStream(terms))
+  }
+
   val fileSink: Sink[ByteString, Future[Long]] = SynchronousFileSink(new java.io.File("tweets.csv"), append = true)
 
 }

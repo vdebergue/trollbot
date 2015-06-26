@@ -64,6 +64,11 @@ object TwitterApp {
       def hasNext: Boolean = !queue.isEmpty
       def next(): Tweet = queue.dequeue()
     }
+  }
 
+  def setupStream(listener: StatusListener, terms: Array[String]): Unit = {
+    val twitterStream = new TwitterStreamFactory(streamConfig).getInstance
+    twitterStream.addListener(listener)
+    twitterStream.filter(new FilterQuery().track(terms))
   }
 }
