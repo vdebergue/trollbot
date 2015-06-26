@@ -11,7 +11,7 @@ case class Hashtag(val name: String) extends AnyVal
 case class Tweet(
   author: String,
   content: String,
-  parent: Option[Tweet] = None
+  parent: Option[Long] = None
 ) {
   def hashtags: Set[Hashtag] =
     content.split(" ").collect { case t if t.startsWith("#") => Hashtag(t) }.toSet
@@ -45,7 +45,7 @@ object TwitterApp {
   def statusListener(queue: collection.mutable.Queue[Tweet]) = new StatusListener() {
     def onStatus(status: Status) {
      println(status.getText)
-     val t = Tweet(status.getUser().getName(), status.getText, None)
+     val t = Tweet(status.getUser().getName(), status.getText, Option(status.getInReplyToStatusId()))
      queue.enqueue(t)
     }
     def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {}
