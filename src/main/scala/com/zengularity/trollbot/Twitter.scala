@@ -1,8 +1,8 @@
-package comp.zengularity.trollbot
+package com.zengularity.trollbot
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-import twitter4j.{Twitter, TwitterFactory}
+import twitter4j._
 import twitter4j.auth.AccessToken
 import twitter4j.conf.ConfigurationBuilder
 
@@ -33,5 +33,30 @@ object TwitterApp {
     t.setOAuthAccessToken(new AccessToken(TwitterApp.ACCESS_TOKEN, TwitterApp.ACCESS_TOKEN_SECRET))
 
     t
+  }
+
+  lazy val streamConfig = new twitter4j.conf.ConfigurationBuilder()
+    .setOAuthConsumerKey(APP_KEY)
+    .setOAuthConsumerSecret(APP_SECRET)
+    .setOAuthAccessToken(ACCESS_TOKEN)
+    .setOAuthAccessTokenSecret(ACCESS_TOKEN_SECRET)
+    .build
+
+  def statusListener = new StatusListener() {
+    def onStatus(status: Status) { println(status.getText) }
+    def onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {}
+    def onTrackLimitationNotice(numberOfLimitedStatuses: Int) {}
+    def onException(ex: Exception) { ex.printStackTrace }
+    def onScrubGeo(arg0: Long, arg1: Long) {}
+    def onStallWarning(warning: StallWarning) {}
+  }
+
+  def getStream(terms: Array[String] = Array[String]()): Unit = {
+    val twitterStream = new TwitterStreamFactory(streamConfig).getInstance
+    twitterStream.addListener(statusListener)
+    twitterStream.filter(new FilterQuery().track(terms))
+    Thread.sleep(2000)
+    twitterStream.cleanUp
+    twitterStream.shutdown
   }
 }

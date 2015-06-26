@@ -12,9 +12,14 @@ import scala.concurrent._
 object Main {
   def main(args: Array[String]) {
     println("-- Hello trollers --")
+    args.map { arg =>
+      println("Keywords:" + arg)
+    }
 
     implicit val system = ActorSystem("reactive-tweets")
     implicit val mat = ActorMaterializer()
+
+    TwitterApp.getStream(args)
 
     // val tweets: Source[Tweet, Unit] = ???
 
@@ -28,7 +33,7 @@ object Main {
     // val res = Await.result(response, 1 second)
     // println(res)
     //
-    // system.shutdown()
+    //system.shutdown()
   }
 
   // def signedRequest(req: HttpRequest): HttpRequest = {
